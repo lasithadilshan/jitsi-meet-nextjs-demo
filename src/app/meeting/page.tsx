@@ -12,18 +12,14 @@ function MeetingPageContent() {
   const [displayName, setDisplayName] = useState("");
   const [hasJoined, setHasJoined] = useState(false);
   const [meetingEnded, setMeetingEnded] = useState(false);
-
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
   const isValid = isValidRoomName(roomName);
-
 
   function handleMeetingEnd() {
     setMeetingEnded(true);
   }
 
   function handleGoHome() {
-    router.push(`${basePath}/`);
+    router.push("/");
   }
 
   // Invalid or missing room name

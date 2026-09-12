@@ -9,11 +9,9 @@ export default function MeetingForm() {
   const [roomInput, setRoomInput] = useState("");
   const [error, setError] = useState("");
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
-
   function handleCreateMeeting() {
     const room = generateRoomName();
-    router.push(`${basePath}/meeting/?room=${room}`);
+    router.push(`/meeting/?room=${room}`);
   }
 
   function handleJoinMeeting(e: FormEvent) {
@@ -29,7 +27,7 @@ export default function MeetingForm() {
       return;
     }
 
-    router.push(`${basePath}/meeting/?room=${sanitized}`);
+    router.push(`/meeting/?room=${sanitized}`);
   }
 
   return (
