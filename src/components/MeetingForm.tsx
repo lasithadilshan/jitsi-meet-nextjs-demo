@@ -113,10 +113,20 @@ export default function MeetingForm() {
           className="w-full flex items-center justify-between text-slate-400 hover:text-slate-200 transition-colors"
         >
           <span className="inline-flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            <span
+              className={`w-2 h-2 rounded-full ${
+                selectedServer === "meet.jit.si" ? "bg-amber-400" : "bg-emerald-400"
+              }`}
+            />
             Server: <strong className="text-slate-200 font-mono">{selectedServer}</strong>
-            <span className="text-emerald-400 text-[10px] bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">
-              No Login Needed
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded border ${
+                selectedServer === "meet.jit.si"
+                  ? "text-amber-400 bg-amber-950/60 border-amber-800/40"
+                  : "text-emerald-400 bg-emerald-950/60 border-emerald-800/40"
+              }`}
+            >
+              {selectedServer === "meet.jit.si" ? "Moderator Login Required" : "No Login Needed"}
             </span>
           </span>
           <svg
@@ -151,7 +161,14 @@ export default function MeetingForm() {
                     className="mt-0.5 text-indigo-500"
                   />
                   <div>
-                    <div className="font-medium text-slate-200">{srv.name}</div>
+                    <div className="font-medium text-slate-200 flex items-center gap-2">
+                      {srv.name}
+                      {srv.domain === "fairmeeting.net" && (
+                        <span className="text-[10px] px-1.5 py-0.2 bg-emerald-900/60 text-emerald-300 rounded border border-emerald-700/50">
+                          Recommended
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[11px] text-slate-500">{srv.description}</div>
                   </div>
                 </label>

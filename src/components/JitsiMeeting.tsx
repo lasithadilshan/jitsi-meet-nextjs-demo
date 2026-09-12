@@ -73,6 +73,23 @@ export default function JitsiMeeting({
 
         if (api) {
           apiRef.current = api;
+
+          // As soon as the iframe element loads, clear the loading overlay
+          try {
+            const iframe = api.getIFrame?.();
+            if (iframe) {
+              iframe.addEventListener("load", () => {
+                if (!cancelled) setStatus("ready");
+              });
+            }
+          } catch {
+            // ignore
+          }
+
+          // Safety timeout to ensure the overlay never permanently blocks the meeting
+          setTimeout(() => {
+            if (!cancelled) setStatus("ready");
+          }, 3500);
         } else {
           setStatus("error");
           setErrorMessage("Failed to initialize Jitsi Meet. Please try refreshing the page.");

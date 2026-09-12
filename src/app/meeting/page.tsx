@@ -10,7 +10,7 @@ function MeetingPageContent() {
   const searchParams = useSearchParams();
   const roomName = searchParams.get("room") || "";
   const serverParam = searchParams.get("server") || "";
-  const [selectedServer] = useState(serverParam || DEFAULT_JITSI_DOMAIN);
+  const [selectedServer, setSelectedServer] = useState(serverParam || DEFAULT_JITSI_DOMAIN);
   const [displayName, setDisplayName] = useState("");
   const [hasJoined, setHasJoined] = useState(false);
   const [meetingEnded, setMeetingEnded] = useState(false);
@@ -24,6 +24,11 @@ function MeetingPageContent() {
 
   function handleGoHome() {
     router.push("/");
+  }
+
+  function handleSwitchToFairmeeting() {
+    setSelectedServer("fairmeeting.net");
+    router.push(`/meeting/?room=${roomName}&server=fairmeeting.net`);
   }
 
   function handleCopyLink() {
@@ -75,13 +80,46 @@ function MeetingPageContent() {
             <p className="text-slate-400 text-sm font-mono">{roomName}</p>
           </div>
 
-          <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-900/60 px-3 py-2 rounded-lg border border-slate-800 mb-5">
+          <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-900/60 px-3 py-2 rounded-lg border border-slate-800 mb-4">
             <span className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              <span className={`w-2 h-2 rounded-full ${selectedServer === "meet.jit.si" ? "bg-amber-400" : "bg-emerald-400"}`} />
               Server: <strong className="text-slate-200 font-mono">{selectedServer}</strong>
             </span>
-            <span className="text-emerald-400 text-[11px]">Free & Anonymous</span>
+            <span className={`text-[11px] ${selectedServer === "meet.jit.si" ? "text-amber-400" : "text-emerald-400"}`}>
+              {selectedServer === "meet.jit.si" ? "Login Required" : "Free & Anonymous"}
+            </span>
           </div>
+
+          {selectedServer === "meet.jit.si" && (
+            <div className="bg-amber-950/40 border border-amber-800/60 rounded-xl p-3 text-xs text-amber-200 space-y-2 mb-4">
+              <div className="font-semibold text-amber-300 flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                meet.jit.si Moderator Requirement
+              </div>
+              <p className="text-amber-300/80 leading-relaxed">
+                8x8 requires moderator login (Google/GitHub) to create rooms on <strong>meet.jit.si</strong>. Inside an embedded iframe, login popups are blocked by browsers, which can cause meetings to stay stuck on &ldquo;Loading meeting&hellip;&rdquo;.
+              </p>
+              <div className="pt-1 flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleSwitchToFairmeeting}
+                  className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors"
+                >
+                  Switch to Fairmeeting (No Login)
+                </button>
+                <a
+                  href={`https://meet.jit.si/${roomName}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs transition-colors inline-flex items-center gap-1"
+                >
+                  Open in Tab ↗
+                </a>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-4">
             <div>
@@ -116,7 +154,9 @@ function MeetingPageContent() {
           </div>
 
           <p className="text-slate-500 text-xs mt-4 text-center">
-            Zero accounts required. Instant WebRTC video conferencing.
+            {selectedServer === "meet.jit.si"
+              ? "Connecting to 8x8 meet.jit.si"
+              : "Zero accounts required. Instant WebRTC video conferencing."}
           </p>
         </div>
       </main>
@@ -126,6 +166,36 @@ function MeetingPageContent() {
   // Active meeting or ended state
   return (
     <main className="min-h-screen bg-slate-950 flex flex-col">
+      {/* meet.jit.si Banner if on meet.jit.si */}
+      {selectedServer === "meet.jit.si" && (
+        <div className="bg-amber-950/70 border-b border-amber-800/60 px-4 py-2 text-xs text-amber-200 flex items-center justify-between flex-wrap gap-2">
+          <div className="flex items-center gap-2">
+            <svg className="w-4 h-4 text-amber-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <span>
+              <strong>meet.jit.si</strong> requires moderator login to start. If stuck waiting, open in a new tab or switch server:
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            <a
+              href={`https://meet.jit.si/${roomName}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-2.5 py-1 rounded bg-amber-600/40 hover:bg-amber-600/60 text-amber-100 border border-amber-500/40 font-medium transition-colors inline-flex items-center gap-1"
+            >
+              Open in meet.jit.si Tab ↗
+            </a>
+            <button
+              onClick={handleSwitchToFairmeeting}
+              className="px-2.5 py-1 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium transition-colors"
+            >
+              Switch to Fairmeeting (No Login)
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top bar */}
       <header className="flex items-center justify-between px-4 py-3 bg-slate-900/80 backdrop-blur-sm border-b border-slate-800">
         <div className="flex items-center gap-3">
@@ -144,6 +214,7 @@ function MeetingPageContent() {
             <span className="text-slate-300 text-sm font-mono truncate max-w-[140px] sm:max-w-none">
               {roomName}
             </span>
+            <span className="text-slate-500 text-xs hidden md:inline-block">({selectedServer})</span>
           </div>
         </div>
 
@@ -180,6 +251,7 @@ function MeetingPageContent() {
       {/* Meeting container */}
       <div className="flex-1 p-2 sm:p-4">
         <JitsiMeeting
+          key={`${selectedServer}-${roomName}`}
           roomName={roomName}
           displayName={displayName || undefined}
           domain={selectedServer}
