@@ -1,29 +1,40 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { JITSI_API_URL, createJitsiMeeting, JitsiMeetExternalAPI } from "@/lib/jitsi";
+import {
+  DEFAULT_JITSI_DOMAIN,
+  getJitsiApiUrl,
+  createJitsiMeeting,
+  JitsiMeetExternalAPI,
+} from "@/lib/jitsi";
 
 interface JitsiMeetingProps {
   roomName: string;
   displayName?: string;
+  domain?: string;
   onMeetingEnd?: () => void;
 }
 
 type MeetingStatus = "loading" | "ready" | "ended" | "error";
 
-export default function JitsiMeeting({ roomName, displayName, onMeetingEnd }: JitsiMeetingProps) {
+export default function JitsiMeeting({
+  roomName,
+  displayName,
+  domain,
+  onMeetingEnd,
+}: JitsiMeetingProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const apiRef = useRef<JitsiMeetExternalAPI | null>(null);
   const [status, setStatus] = useState<MeetingStatus>("loading");
   const [errorMessage, setErrorMessage] = useState("");
 
+  const targetDomain = domain || DEFAULT_JITSI_DOMAIN;
+  const apiUrl = getJitsiApiUrl(targetDomain);
+
   useEffect(() => {
     if (!containerRef.current) return;
 
     let cancelled = false;
-
-    // Load the Jitsi IFrame API script
-    const existingScript = document.querySelector(`script[src="${JITSI_API_URL}"]`);
 
     function initJitsi() {
       if (cancelled || !containerRef.current) return;
@@ -35,6 +46,7 @@ export default function JitsiMeeting({ roomName, displayName, onMeetingEnd }: Ji
         const api = createJitsiMeeting({
           roomName,
           displayName,
+          domain: targetDomain,
           parentNode: containerRef.current,
           onLoad: () => {
             if (!cancelled) setStatus("ready");
@@ -74,23 +86,28 @@ export default function JitsiMeeting({ roomName, displayName, onMeetingEnd }: Ji
       }
     }
 
-    if (existingScript) {
-      // Script already loaded
+    // Ensure Jitsi external API is loaded before initializing
+    if ((window as any).JitsiMeetExternalAPI) {
       initJitsi();
     } else {
-      const script = document.createElement("script");
-      script.src = JITSI_API_URL;
-      script.async = true;
-      script.onload = initJitsi;
-      script.onerror = () => {
-        if (!cancelled) {
-          setStatus("error");
-          setErrorMessage(
-            "Failed to load Jitsi Meet. Please check your internet connection and try again."
-          );
-        }
-      };
-      document.head.appendChild(script);
+      const existingScript = document.querySelector(`script[src="${apiUrl}"]`) as HTMLScriptElement | null;
+      if (existingScript) {
+        existingScript.addEventListener("load", initJitsi);
+      } else {
+        const script = document.createElement("script");
+        script.src = apiUrl;
+        script.async = true;
+        script.onload = initJitsi;
+        script.onerror = () => {
+          if (!cancelled) {
+            setStatus("error");
+            setErrorMessage(
+              `Failed to load Jitsi Meet from ${targetDomain}. Please check your connection or try another server.`
+            );
+          }
+        };
+        document.head.appendChild(script);
+      }
     }
 
     return () => {
@@ -105,7 +122,7 @@ export default function JitsiMeeting({ roomName, displayName, onMeetingEnd }: Ji
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomName, displayName]);
+  }, [roomName, displayName, targetDomain]);
 
   if (status === "error") {
     return (

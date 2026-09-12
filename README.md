@@ -57,15 +57,13 @@ No backend, no database, no API keys — just a static web application that conn
 
 ## How Jitsi Meet Works
 
-This application uses the **free public Jitsi Meet server** at `meet.jit.si`.
+This application connects to public [Jitsi Meet](https://jitsi.org) servers using the [Jitsi Meet IFrame API](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe).
 
-- Jitsi Meet is open-source video conferencing software
-- The `meet.jit.si` server is provided for free by [8x8](https://www.8x8.com)
-- **No API key is required** for basic usage
-- Anyone with the same room name joins the same meeting
-- All video/audio is processed by Jitsi's servers — this app is just a frontend
-
-The application loads the [Jitsi Meet IFrame API](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe) script dynamically and creates a meeting instance with configured toolbar buttons, events, and user info.
+- **Default Server (`fairmeeting.net`)**: Hosted by fairkom in Europe. It is 100% free and allows anonymous meeting creation with **no accounts or moderator login required**.
+- **Official Server (`meet.jit.si`)**: Provided by [8x8](https://www.8x8.com). Note: Since August 2023, `meet.jit.si` requires an authenticated moderator (logging in with Google, GitHub, or Facebook) to create new rooms.
+- **Custom / Self-Hosted**: You can configure any self-hosted Jitsi instance via `NEXT_PUBLIC_JITSI_DOMAIN` or via the UI server selector.
+- Anyone with the same room name and server joins the same meeting.
+- All video/audio is WebRTC peer-to-peer and processed by Jitsi's videobridge servers — this app is purely a static frontend.
 
 ## Local Installation
 

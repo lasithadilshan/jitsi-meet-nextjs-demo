@@ -2,11 +2,40 @@
  * Jitsi Meet configuration and utility functions.
  */
 
-/** The public Jitsi Meet server domain */
-export const JITSI_DOMAIN = "meet.jit.si";
+/** The default Jitsi Meet server domain (fairmeeting.net requires no login or moderator) */
+export const DEFAULT_JITSI_DOMAIN = process.env.NEXT_PUBLIC_JITSI_DOMAIN || "fairmeeting.net";
 
-/** URL for the Jitsi IFrame API script */
-export const JITSI_API_URL = `https://${JITSI_DOMAIN}/external_api.js`;
+/** Legacy export for backwards compatibility */
+export const JITSI_DOMAIN = DEFAULT_JITSI_DOMAIN;
+
+/** Helper to get Jitsi external API URL for any domain */
+export function getJitsiApiUrl(domain: string = DEFAULT_JITSI_DOMAIN): string {
+  return `https://${domain}/external_api.js`;
+}
+
+/** Legacy export */
+export const JITSI_API_URL = getJitsiApiUrl(DEFAULT_JITSI_DOMAIN);
+
+export interface JitsiServerOption {
+  domain: string;
+  name: string;
+  description: string;
+  isDefault?: boolean;
+}
+
+export const JITSI_SERVERS: JitsiServerOption[] = [
+  {
+    domain: "fairmeeting.net",
+    name: "Fairmeeting (Free & Anonymous)",
+    description: "No account or moderator required. 100% free and open.",
+    isDefault: true,
+  },
+  {
+    domain: "meet.jit.si",
+    name: "meet.jit.si (Official 8x8)",
+    description: "Requires moderator Google/GitHub login to start new rooms.",
+  },
+];
 
 /**
  * Validate a meeting room name.
@@ -53,6 +82,7 @@ export const TOOLBAR_BUTTONS = [
 export interface JitsiConfig {
   roomName: string;
   displayName?: string;
+  domain?: string;
   parentNode: HTMLElement;
   onLoad?: () => void;
   onReadyToClose?: () => void;
@@ -75,7 +105,9 @@ export function createJitsiMeeting(config: JitsiConfig): JitsiMeetExternalAPI | 
     return null;
   }
 
-  const api = new JitsiMeetExternalAPI(JITSI_DOMAIN, {
+  const domain = config.domain || DEFAULT_JITSI_DOMAIN;
+
+  const api = new JitsiMeetExternalAPI(domain, {
     roomName: config.roomName,
     parentNode: config.parentNode,
     width: "100%",
@@ -83,12 +115,17 @@ export function createJitsiMeeting(config: JitsiConfig): JitsiMeetExternalAPI | 
     configOverwrite: {
       startWithAudioMuted: false,
       startWithVideoMuted: false,
-      prejoinPageEnabled: true,
+      prejoinConfig: {
+        enabled: false,
+      },
+      prejoinPageEnabled: false,
       disableDeepLinking: true,
+      enableWelcomePage: false,
+      enableClosePage: false,
     },
     interfaceConfigOverwrite: {
-      SHOW_JITSI_WATERMARK: true,
-      SHOW_WATERMARK_FOR_GUESTS: true,
+      SHOW_JITSI_WATERMARK: false,
+      SHOW_WATERMARK_FOR_GUESTS: false,
       DEFAULT_BACKGROUND: "#0f172a",
       TOOLBAR_BUTTONS: TOOLBAR_BUTTONS,
     },

@@ -2,16 +2,24 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { isValidRoomName, sanitizeRoomName, generateRoomName } from "@/lib/jitsi";
+import {
+  isValidRoomName,
+  sanitizeRoomName,
+  generateRoomName,
+  DEFAULT_JITSI_DOMAIN,
+  JITSI_SERVERS,
+} from "@/lib/jitsi";
 
 export default function MeetingForm() {
   const router = useRouter();
   const [roomInput, setRoomInput] = useState("");
   const [error, setError] = useState("");
+  const [selectedServer, setSelectedServer] = useState(DEFAULT_JITSI_DOMAIN);
+  const [showServerSettings, setShowServerSettings] = useState(false);
 
   function handleCreateMeeting() {
     const room = generateRoomName();
-    router.push(`/meeting/?room=${room}`);
+    router.push(`/meeting/?room=${room}&server=${selectedServer}`);
   }
 
   function handleJoinMeeting(e: FormEvent) {
@@ -27,14 +35,14 @@ export default function MeetingForm() {
       return;
     }
 
-    router.push(`/meeting/?room=${sanitized}`);
+    router.push(`/meeting/?room=${sanitized}&server=${selectedServer}`);
   }
 
   return (
-    <div className="space-y-8 w-full max-w-md mx-auto">
+    <div className="space-y-6 w-full max-w-md mx-auto">
       {/* Create Meeting */}
       <div className="card text-center">
-        <h2 className="text-xl font-semibold text-white mb-3">Start a New Meeting</h2>
+        <h2 className="text-xl font-semibold text-white mb-2">Start a New Meeting</h2>
         <p className="text-slate-400 text-sm mb-5">
           Instantly create a private meeting room with a unique link.
         </p>
@@ -59,7 +67,7 @@ export default function MeetingForm() {
 
       {/* Join Meeting */}
       <div className="card">
-        <h2 className="text-xl font-semibold text-white mb-3 text-center">Join a Meeting</h2>
+        <h2 className="text-xl font-semibold text-white mb-2 text-center">Join a Meeting</h2>
         <p className="text-slate-400 text-sm mb-5 text-center">
           Enter a room name to join an existing meeting.
         </p>
@@ -95,6 +103,62 @@ export default function MeetingForm() {
             Join Meeting
           </button>
         </form>
+      </div>
+
+      {/* Server Settings Accordion */}
+      <div className="bg-slate-900/60 rounded-xl p-3 border border-slate-800 text-xs">
+        <button
+          type="button"
+          onClick={() => setShowServerSettings(!showServerSettings)}
+          className="w-full flex items-center justify-between text-slate-400 hover:text-slate-200 transition-colors"
+        >
+          <span className="inline-flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400" />
+            Server: <strong className="text-slate-200 font-mono">{selectedServer}</strong>
+            <span className="text-emerald-400 text-[10px] bg-emerald-950/60 px-1.5 py-0.5 rounded border border-emerald-800/40">
+              No Login Needed
+            </span>
+          </span>
+          <svg
+            className={`w-4 h-4 transition-transform ${showServerSettings ? "rotate-180" : ""}`}
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {showServerSettings && (
+          <div className="mt-3 pt-3 border-t border-slate-800 space-y-2">
+            <label className="block text-slate-400 mb-1">Select Jitsi Server:</label>
+            <div className="space-y-1.5">
+              {JITSI_SERVERS.map((srv) => (
+                <label
+                  key={srv.domain}
+                  className={`flex items-start gap-2 p-2 rounded-lg cursor-pointer border transition-colors ${
+                    selectedServer === srv.domain
+                      ? "bg-indigo-950/40 border-indigo-500/40 text-white"
+                      : "bg-slate-800/30 border-slate-800/60 text-slate-300 hover:bg-slate-800/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="serverSelection"
+                    value={srv.domain}
+                    checked={selectedServer === srv.domain}
+                    onChange={() => setSelectedServer(srv.domain)}
+                    className="mt-0.5 text-indigo-500"
+                  />
+                  <div>
+                    <div className="font-medium text-slate-200">{srv.name}</div>
+                    <div className="text-[11px] text-slate-500">{srv.description}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

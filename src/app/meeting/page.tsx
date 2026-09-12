@@ -3,15 +3,19 @@
 import { useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import JitsiMeeting from "@/components/JitsiMeeting";
-import { isValidRoomName } from "@/lib/jitsi";
+import { isValidRoomName, DEFAULT_JITSI_DOMAIN } from "@/lib/jitsi";
 
 function MeetingPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const roomName = searchParams.get("room") || "";
+  const serverParam = searchParams.get("server") || "";
+  const [selectedServer] = useState(serverParam || DEFAULT_JITSI_DOMAIN);
   const [displayName, setDisplayName] = useState("");
   const [hasJoined, setHasJoined] = useState(false);
   const [meetingEnded, setMeetingEnded] = useState(false);
+  const [copied, setCopied] = useState(false);
+
   const isValid = isValidRoomName(roomName);
 
   function handleMeetingEnd() {
@@ -20,6 +24,14 @@ function MeetingPageContent() {
 
   function handleGoHome() {
     router.push("/");
+  }
+
+  function handleCopyLink() {
+    if (typeof window !== "undefined") {
+      navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
   }
 
   // Invalid or missing room name
@@ -58,9 +70,17 @@ function MeetingPageContent() {
           </button>
 
           <h1 className="text-2xl font-bold text-white mb-1">Join Meeting</h1>
-          <div className="flex items-center gap-2 mb-6">
+          <div className="flex items-center gap-2 mb-4">
             <span className="inline-block w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             <p className="text-slate-400 text-sm font-mono">{roomName}</p>
+          </div>
+
+          <div className="flex items-center justify-between text-xs text-slate-400 bg-slate-900/60 px-3 py-2 rounded-lg border border-slate-800 mb-5">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-400" />
+              Server: <strong className="text-slate-200 font-mono">{selectedServer}</strong>
+            </span>
+            <span className="text-emerald-400 text-[11px]">Free & Anonymous</span>
           </div>
 
           <div className="space-y-4">
@@ -96,7 +116,7 @@ function MeetingPageContent() {
           </div>
 
           <p className="text-slate-500 text-xs mt-4 text-center">
-            You&apos;ll join the meeting hosted on meet.jit.si
+            Zero accounts required. Instant WebRTC video conferencing.
           </p>
         </div>
       </main>
@@ -121,16 +141,40 @@ function MeetingPageContent() {
             {!meetingEnded && (
               <span className="inline-block w-2 h-2 bg-red-500 rounded-full animate-pulse" />
             )}
-            <span className="text-slate-300 text-sm font-mono truncate max-w-[200px] sm:max-w-none">
+            <span className="text-slate-300 text-sm font-mono truncate max-w-[140px] sm:max-w-none">
               {roomName}
             </span>
           </div>
         </div>
-        {displayName && (
-          <span className="text-slate-500 text-xs hidden sm:block">
-            Joined as {displayName}
-          </span>
-        )}
+
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleCopyLink}
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition-colors"
+            title="Copy meeting link to invite others"
+          >
+            {copied ? (
+              <>
+                <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+                <span className="text-emerald-400">Copied!</span>
+              </>
+            ) : (
+              <>
+                <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                <span>Share Link</span>
+              </>
+            )}
+          </button>
+          {displayName && (
+            <span className="text-slate-500 text-xs hidden sm:block">
+              Joined as {displayName}
+            </span>
+          )}
+        </div>
       </header>
 
       {/* Meeting container */}
@@ -138,6 +182,7 @@ function MeetingPageContent() {
         <JitsiMeeting
           roomName={roomName}
           displayName={displayName || undefined}
+          domain={selectedServer}
           onMeetingEnd={handleMeetingEnd}
         />
       </div>
@@ -154,12 +199,12 @@ function MeetingPageContent() {
       <footer className="text-center py-3 text-slate-600 text-xs border-t border-slate-800">
         Powered by{" "}
         <a
-          href="https://jitsi.org"
+          href={`https://${selectedServer}`}
           target="_blank"
           rel="noopener noreferrer"
           className="text-slate-500 hover:text-indigo-400 transition-colors"
         >
-          Jitsi Meet
+          {selectedServer}
         </a>
       </footer>
     </main>
