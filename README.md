@@ -1,85 +1,100 @@
-# Jitsi Meet Demo
+# Jitsi Meet Next.js Demo
 
-Free video meetings powered by [Jitsi Meet](https://jitsi.org), built with [Next.js](https://nextjs.org) and deployed on GitHub Pages.
+[![Deploy to GitHub Pages](https://github.com/lasithadilshan/jitsi-meet-nextjs-demo/actions/workflows/deploy.yml/badge.svg)](https://github.com/lasithadilshan/jitsi-meet-nextjs-demo/actions/workflows/deploy.yml)
+[![Live Demo](https://img.shields.io/badge/demo-online-brightgreen.svg)](https://lasithadilshan.github.io/jitsi-meet-nextjs-demo/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Next.js](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+[![React](https://img.shields.io/badge/React-19-61dafb.svg)](https://react.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38b2ac.svg)](https://tailwindcss.com/)
 
-No backend, no database, no API keys — just a static web application that connects to the free public `meet.jit.si` server.
+A modern, production-quality video conferencing web application integrating **Jitsi Meet** with **Next.js 16**, fully statically exported and hosted free on **GitHub Pages**.
+
+🌐 **Live Demo:** [https://lasithadilshan.github.io/jitsi-meet-nextjs-demo/](https://lasithadilshan.github.io/jitsi-meet-nextjs-demo/)
 
 ---
 
-## Features
+## Highlights
 
-- **Create a Meeting** — instantly generates a unique room name and starts a meeting
-- **Join a Meeting** — enter any room name to join an existing meeting
-- **Display Name** — optionally set your name before joining
-- **Jitsi IFrame API** — uses the official Jitsi Meet External API (not a plain iframe)
-- **Event Handling** — tracks meeting joined, participant joined/left, meeting ended
-- **Room Validation** — sanitizes and validates room names before use
-- **Responsive Design** — works on desktop, tablet, and mobile
-- **Static Export** — fully static Next.js build, no server required
-- **GitHub Pages** — automated deployment via GitHub Actions
+- ⚡ **Zero Backend Required** — 100% static Next.js export (`output: 'export'`) running completely free on GitHub Pages.
+- 🔒 **Zero-Login Video Calling** — Defaulted to `fairmeeting.net` (Fairkom Foundation), enabling instant, anonymous meetings without Google/GitHub account logins.
+- 🌐 **Multi-Server Support** — Built-in server switcher supporting `fairmeeting.net`, official `meet.jit.si` (8x8), or any custom self-hosted Jitsi instance.
+- 📱 **Responsive Dark UI** — Glassmorphism design system built with Tailwind CSS 4 and fluid controls across mobile, tablet, and desktop.
+- 🔗 **Instant Sharing** — One-click link copying with real-time feedback toast to invite participants effortlessly.
+- 🛡️ **Camera & Mic Integration** — Automatic device negotiation with hardware status detection and pre-join preview.
+
+---
 
 ## Technology Stack
 
-| Technology | Purpose |
+| Technology | Role |
 |---|---|
-| [Next.js 16](https://nextjs.org) | React framework with static export |
-| [TypeScript](https://www.typescriptlang.org) | Type safety |
-| [React 19](https://react.dev) | UI components |
-| [Tailwind CSS 4](https://tailwindcss.com) | Styling |
-| [Jitsi Meet IFrame API](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe) | Video conferencing |
-| [GitHub Actions](https://docs.github.com/actions) | CI/CD |
-| [GitHub Pages](https://pages.github.com) | Static hosting |
+| [Next.js 16 (Turbopack)](https://nextjs.org) | Modern React framework configured with static export |
+| [React 19](https://react.dev) | Modern component architecture & hooks |
+| [TypeScript 5](https://www.typescriptlang.org) | Strict type-safety across all components & APIs |
+| [Tailwind CSS 4](https://tailwindcss.com) | Modern CSS utility-first styling with `@theme` tokens |
+| [Jitsi Meet External API](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe) | IFrame API wrapper with programmatic event handling |
+| [GitHub Actions](https://github.com/features/actions) | Continuous Integration & automated deployment pipeline |
+| [GitHub Pages](https://pages.github.com) | Free high-performance static web hosting |
+
+---
 
 ## Project Structure
 
 ```
 ├── .github/
 │   └── workflows/
-│       └── deploy.yml          # GitHub Actions deployment workflow
+│       └── deploy.yml          # GitHub Actions deployment to Pages
 ├── src/
 │   ├── app/
-│   │   ├── globals.css         # Global styles & design system
-│   │   ├── layout.tsx          # Root layout with metadata
-│   │   ├── page.tsx            # Home page (create/join meeting)
+│   │   ├── globals.css         # Global design system tokens & utilities
+│   │   ├── layout.tsx          # Root layout with SEO metadata & fonts
+│   │   ├── page.tsx            # Home page (server selector & room form)
 │   │   └── meeting/
-│   │       └── page.tsx        # Meeting page (Jitsi embed)
+│   │       └── page.tsx        # Pre-join & live meeting conference room
 │   ├── components/
-│   │   ├── JitsiMeeting.tsx    # Jitsi IFrame API component
-│   │   └── MeetingForm.tsx     # Create/Join meeting form
+│   │   ├── JitsiMeeting.tsx    # Jitsi External API lifecycle wrapper
+│   │   └── MeetingForm.tsx     # Room generator & server accordion form
 │   └── lib/
-│       └── jitsi.ts            # Jitsi utilities & configuration
-├── .env.example                # Environment variables template
-├── next.config.ts              # Next.js config (static export)
+│       └── jitsi.ts            # Configuration, server list & validation
+├── .env.example                # Environment variable reference
+├── LICENSE                     # MIT License
+├── next.config.ts              # Static export & basePath configuration
 ├── package.json
 ├── tsconfig.json
 └── README.md
 ```
 
-## How Jitsi Meet Works
+---
 
-This application connects to public [Jitsi Meet](https://jitsi.org) servers using the [Jitsi Meet IFrame API](https://jitsi.github.io/handbook/docs/dev-guide/dev-guide-iframe).
+## Supported Jitsi Servers
 
-- **Default Server (`fairmeeting.net`)**: Hosted by fairkom in Europe. It is 100% free and allows anonymous meeting creation with **no accounts or moderator login required**.
-- **Official Server (`meet.jit.si`)**: Provided by [8x8](https://www.8x8.com). Note: Since August 2023, `meet.jit.si` requires an authenticated moderator (logging in with Google, GitHub, or Facebook) to create new rooms.
-- **Custom / Self-Hosted**: You can configure any self-hosted Jitsi instance via `NEXT_PUBLIC_JITSI_DOMAIN` or via the UI server selector.
-- Anyone with the same room name and server joins the same meeting.
-- All video/audio is WebRTC peer-to-peer and processed by Jitsi's videobridge servers — this app is purely a static frontend.
+| Server | Domain | Moderator Login | Best For |
+|---|---|---|---|
+| **Fairmeeting (Default)** | `fairmeeting.net` | ❌ No Login Needed | Instant, anonymous video calls without requiring Google/GitHub accounts. Hosted by Fairkom NGO in Europe. |
+| **meet.jit.si (Official 8x8)** | `meet.jit.si` | ⚠️ Login Required | Hosted by 8x8. Since August 2023, requires a room moderator to sign in (Google/GitHub/Facebook) to create new rooms. |
+| **Custom / Self-Hosted** | Configurable | Dependent on config | Any self-hosted Jitsi Meet instance via `NEXT_PUBLIC_JITSI_DOMAIN`. |
 
-## Local Installation
+> **Why did meet.jit.si show "Loading meeting..."?**  
+> In August 2023, 8x8 disabled anonymous room creation. When entering an unstarted room on `meet.jit.si`, it holds users in a "Waiting for moderator" lobby. Because browsers block third-party OAuth popups inside embedded iframes, login inside the iframe fails. The demo app includes an in-app banner with an **"Open in Tab ↗"** button to start the room as moderator, or a **"Switch to Fairmeeting"** button for instant zero-login calling.
+
+---
+
+## Quick Start (Local Development)
+
+### 1. Clone the repository
 
 ```bash
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/jitsi-meet-demo.git
-cd jitsi-meet-demo
-
-# Install dependencies
-npm install
-
-# (Optional) Create a local env file
-cp .env.example .env.local
+git clone https://github.com/lasithadilshan/jitsi-meet-nextjs-demo.git
+cd jitsi-meet-nextjs-demo
 ```
 
-## Local Development
+### 2. Install dependencies
+
+```bash
+npm install
+```
+
+### 3. Run the development server
 
 ```bash
 npm run dev
@@ -87,138 +102,69 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-## Production Build
+---
+
+## Building for Production
+
+To test the static production export locally:
 
 ```bash
 # Build the static site
 npm run build
 
-# The output is in the `out/` directory
-```
-
-To preview the production build locally:
-
-```bash
+# Preview the static output with a local server
 npx serve out
 ```
 
-## GitHub Repository Setup
+---
 
-1. Create a new repository on GitHub (e.g., `jitsi-meet-demo`)
-2. Push this project to the repository:
+## Deploying to GitHub Pages
 
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/jitsi-meet-demo.git
-git add .
-git commit -m "Initial commit: Jitsi Meet Demo"
-git branch -M main
-git push -u origin main
-```
+The repository contains an automated GitHub Actions workflow at [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml).
 
-## GitHub Pages Setup
+1. Fork or push this repository to GitHub:
+   ```bash
+   git remote add origin https://github.com/lasithadilshan/jitsi-meet-nextjs-demo.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. In your repository, go to **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **GitHub Actions**.
+4. Every push to the `main` branch automatically triggers the build and deployment.
+5. The site will be available at:
+   ```
+   https://<username>.github.io/<repository-name>/
+   ```
 
-1. Go to your repository on GitHub
-2. Navigate to **Settings → Pages**
-3. Under **Source**, select **GitHub Actions**
-4. Push to the `main` branch — the workflow will run automatically
-5. Wait for the deployment to complete (check the **Actions** tab)
+---
 
-## GitHub Actions Deployment
+## Testing Meeting Functionality
 
-The workflow at `.github/workflows/deploy.yml` automatically:
+### Solo Test
+1. Open the application at [https://lasithadilshan.github.io/jitsi-meet-nextjs-demo/](https://lasithadilshan.github.io/jitsi-meet-nextjs-demo/).
+2. Click **Create Meeting**.
+3. Enter your name and click **Enter Meeting**.
+4. Grant camera and microphone access when prompted by the browser.
+5. Verify that your video tile, toolbar, and audio indicators are active.
 
-1. Checks out the code
-2. Sets up Node.js 20
-3. Installs dependencies with `npm ci`
-4. Builds the static site with `NEXT_PUBLIC_BASE_PATH=/<repo-name>`
-5. Uploads the `out/` directory as a Pages artifact
-6. Deploys to GitHub Pages
+### Multi-Participant Test
+1. While in an active meeting, click the **Share Link** button in the top navigation bar.
+2. Open the copied URL in a separate browser window, incognito tab, or mobile device.
+3. Enter a different participant name and click **Enter Meeting**.
+4. Verify that both participants see and hear each other with active WebRTC streaming.
 
-The `NEXT_PUBLIC_BASE_PATH` is automatically set to `/<repository-name>` using `${{ github.event.repository.name }}`, so it works with any repository name.
-
-## GitHub Pages URL
-
-After deployment, your app will be available at:
-
-```
-https://YOUR_USERNAME.github.io/jitsi-meet-demo/
-```
-
-Replace `YOUR_USERNAME` with your GitHub username and `jitsi-meet-demo` with your actual repository name.
-
-## How to Test a Meeting
-
-### Solo test
-
-1. Open the app (locally or on GitHub Pages)
-2. Click **Create Meeting**
-3. Enter your name (optional) and click **Enter Meeting**
-4. Allow camera/microphone access when prompted
-5. You should see yourself in the Jitsi meeting
-
-### Multi-user test
-
-1. Create a meeting and copy the URL from your browser's address bar
-2. Open the same URL in a **different browser** or **incognito window**
-3. Both windows should join the same meeting room
-4. You can also share the URL with someone else on a different device
-
-### Testing on GitHub Pages
-
-The meeting URL format is:
-
-```
-https://YOUR_USERNAME.github.io/jitsi-meet-demo/meeting/?room=YOUR_ROOM_NAME
-```
-
-Share this URL with another person to test the video call.
+---
 
 ## Troubleshooting
 
-### Meeting doesn't load
-- Check your internet connection
-- Make sure your browser allows access to `meet.jit.si`
-- Some corporate networks/VPNs may block Jitsi
-- Try a different browser (Chrome, Firefox, Edge recommended)
+- **Camera / Microphone not appearing:** Ensure browser permissions are allowed for the site (click the padlock icon in the browser address bar).
+- **Embedded meeting stuck loading on `meet.jit.si`:** Click **Switch to Fairmeeting (No Login)** to use the free NGO server, or click **Open in Tab ↗** to log in as moderator on `meet.jit.si`.
+- **404 error on refresh or direct navigation on GitHub Pages:** Next.js static export uses query parameters (`/meeting/?room=xyz`) rather than dynamic folders (`/meeting/[room]`), ensuring every route works with static web servers without server-side rewrite rules.
 
-### Camera/microphone not working
-- Check browser permissions (click the lock icon in the address bar)
-- Make sure no other app is using your camera/microphone
-- Try refreshing the page
-
-### Build fails with "generateStaticParams" error
-- This project uses query-parameter-based routing (`/meeting/?room=xyz`) instead of dynamic path segments
-- The build should work out of the box; if you see this error, make sure you haven't added dynamic `[param]` routes
-
-### GitHub Pages shows 404
-- Make sure GitHub Pages source is set to **GitHub Actions** (not "Deploy from a branch")
-- Check that the workflow completed successfully in the Actions tab
-- The `NEXT_PUBLIC_BASE_PATH` must match your repository name
-
-### Assets not loading on GitHub Pages
-- The `next.config.ts` sets both `basePath` and `assetPrefix` to the repository subpath
-- If you rename your repository, push a new commit to trigger a rebuild
-
-## Limitations
-
-- **Free Jitsi server**: `meet.jit.si` is a free public service with no SLA or guaranteed uptime
-- **No persistence**: Meeting rooms are ephemeral — there is no recording, history, or room persistence
-- **No authentication**: Anyone with the room name can join the meeting
-- **No backend**: This is a frontend-only demo — there is no server-side logic
-- **Browser support**: Requires a modern browser with WebRTC support
-- **Static routing**: Uses query parameters (`?room=xyz`) instead of clean path segments due to static hosting constraints
-
-## Future Improvements
-
-- Room password protection
-- Meeting scheduling / calendar integration
-- Screen recording (using Jitsi's built-in recording if self-hosted)
-- Custom Jitsi server support (configurable domain)
-- Meeting history (localStorage)
-- Shareable invite links with copy-to-clipboard
-- Dark/light theme toggle
-- End-to-end encryption toggle
+---
 
 ## License
 
-MIT
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+
+Copyright &copy; 2026 **Lasitha Thilakarathna**. All rights reserved.
