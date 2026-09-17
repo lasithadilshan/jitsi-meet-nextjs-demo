@@ -24,6 +24,61 @@ A modern, production-quality video conferencing web application integrating **Ji
 
 ---
 
+## 🔬 Research Novelty & Architectural Contributions
+
+This project investigates and resolves key architectural and security challenges at the intersection of **Static Jamstack Hosting**, **WebRTC Real-Time Communications**, and **Modern Browser Cross-Origin Sandboxing**.
+
+```mermaid
+graph TD
+    subgraph Client ["Client Tier (Browser)"]
+        UI["Next.js 16 Static SPA\n(React 19 + Suspense)"]
+        LifeCycle["Atomic WebRTC Lifecycle Manager\n(iframe + script sync)"]
+        UI --> LifeCycle
+    end
+
+    subgraph StaticCDN ["Zero-Cost Edge Tier"]
+        GHPages["GitHub Pages CDN\n(Pure Static Export / No Server)"]
+    end
+
+    subgraph WebRTCPlane ["Distributed WebRTC Infrastructure"]
+        Fairkom["Fairkom SFU / NGO Cluster\n(fairmeeting.net)\n[Zero-Account Anonymous Mesh]"]
+        OfficialJitsi["8x8 SFU Cluster\n(meet.jit.si)\n[Prosody Auth / Token-Gated]"]
+    end
+
+    subgraph OutOfBand ["Out-of-Band Auth Plane"]
+        AuthTab["Top-Level Browser Window\n(OAuth: Google / GitHub)"]
+    end
+
+    Client <-->|Static Assets (HTML/JS/CSS)| GHPages
+    LifeCycle <-->|Direct WebRTC P2P / SFU Media Stream| Fairkom
+    LifeCycle -.->|Embedded Media Stream| OfficialJitsi
+    UI ==>|Bypasses Iframe Sandbox Block| AuthTab
+    AuthTab ==>|Authenticates & Creates Room| OfficialJitsi
+```
+
+### 1. Serverless Jamstack WebRTC Orchestration
+- **Problem**: Production-grade WebRTC conferencing typically mandates dedicated signaling backends (WebSocket, SIP, Redis Pub/Sub, and token microservices) to coordinate rooms and participant states.
+- **Novelty**: Formulates a **pure zero-backend, client-side WebRTC topology** built on Next.js 16 static export (`output: 'export'`). Dynamic room discovery and participant session handshakes are orchestrated through client-side query string extraction (`useSearchParams`) wrapped within React Suspense boundaries, completely eliminating the need for server-side routing, database persistence, or cloud functions.
+
+### 2. Resolution of Cross-Origin Iframe & Sandbox Blockade
+- **Problem**: With Chrome Privacy Sandbox, Safari Intelligent Tracking Prevention (ITP), and partition-based third-party cookie blocking, embedded iframes are strictly prevented from opening OAuth popups and persisting authentication sessions. In August 2023, 8x8 eliminated anonymous room creation on `meet.jit.si`, causing embedded iframes on third-party domains to remain indefinitely stuck in a *"Waiting for moderator / Loading meeting..."* lobby.
+- **Novelty**: Introduces a **Dual-Plane Authentication & Federation Strategy**:
+  - **Federated NGO SFU Routing**: Programmatically shifts the default connection to European open-infrastructure SFU nodes (`fairmeeting.net` via Fairkom Foundation) operating under an open-access model that bypasses corporate authentication walls.
+  - **Out-of-Band Auth Decoupling**: For gated servers (`meet.jit.si`), separates moderator authentication from iframe media streaming. Hosts authenticate in an isolated top-level tab context, immediately unblocking the waiting room media bridge for all embedded participants without breaching cross-origin security sandboxes.
+
+### 3. Atomic WebRTC Lifecycle Management in Modern React (React 19)
+- **Problem**: Concurrently mounting, unmounting, and switching external WebRTC scripts inside React 19's concurrent rendering engine frequently causes memory leaks, zombie DOM nodes, orphaned audio/video tracks, and camera hardware resource locks.
+- **Novelty**: Implements an **event-driven deterministic lifecycle harness**:
+  - **Deduplicated Dynamic Script Loading**: Idempotent injection engine preventing duplicate script tags and handling script execution race conditions.
+  - **Dual-Phase Non-Blocking State Machine**: Dispatches UI transitions across `iframe.onload`, `videoConferenceJoined`, and deterministic timeout fallbacks, preventing persistent overlay occlusion.
+  - **Key-Space Partitioning**: Employs domain-partitioned React keys (`${selectedServer}-${roomName}`) guaranteeing complete teardown (`api.dispose()`), explicit hardware device release, and clean garbage collection prior to server switching.
+
+### 4. Zero-Trust, Ephemeral Privacy-Preserving Communication
+- **Problem**: Commercial meeting platforms track telemetry, user identifiers, room logs, and behavioral analytics.
+- **Novelty**: Delivers a **zero-data-footprint ephemeral communication model**. No user database, tracking cookies, server logs, or persistent session identifiers are created or retained. When combined with European GDPR-compliant open infrastructure nodes, it provides an auditable, high-privacy teleconferencing architecture.
+
+---
+
 ## Technology Stack
 
 | Technology | Role |
