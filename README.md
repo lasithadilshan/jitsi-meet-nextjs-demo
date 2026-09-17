@@ -29,31 +29,31 @@ A modern, production-quality video conferencing web application integrating **Ji
 This project investigates and resolves key architectural and security challenges at the intersection of **Static Jamstack Hosting**, **WebRTC Real-Time Communications**, and **Modern Browser Cross-Origin Sandboxing**.
 
 ```mermaid
-graph TD
-    subgraph Client ["Client Tier (Browser)"]
-        UI["Next.js 16 Static SPA\n(React 19 + Suspense)"]
-        LifeCycle["Atomic WebRTC Lifecycle Manager\n(iframe + script sync)"]
+flowchart TD
+    subgraph S1 ["Client Tier (Browser)"]
+        UI["Next.js 16 Static SPA"]
+        LifeCycle["Atomic WebRTC Lifecycle Manager"]
         UI --> LifeCycle
     end
 
-    subgraph StaticCDN ["Zero-Cost Edge Tier"]
-        GHPages["GitHub Pages CDN\n(Pure Static Export / No Server)"]
+    subgraph S2 ["Zero-Cost Edge Tier"]
+        GHPages["GitHub Pages CDN"]
     end
 
-    subgraph WebRTCPlane ["Distributed WebRTC Infrastructure"]
-        Fairkom["Fairkom SFU / NGO Cluster\n(fairmeeting.net)\n[Zero-Account Anonymous Mesh]"]
-        OfficialJitsi["8x8 SFU Cluster\n(meet.jit.si)\n[Prosody Auth / Token-Gated]"]
+    subgraph S3 ["Distributed WebRTC Infrastructure"]
+        Fairkom["Fairkom SFU Node (fairmeeting.net)"]
+        OfficialJitsi["8x8 SFU Node (meet.jit.si)"]
     end
 
-    subgraph OutOfBand ["Out-of-Band Auth Plane"]
-        AuthTab["Top-Level Browser Window\n(OAuth: Google / GitHub)"]
+    subgraph S4 ["Out-of-Band Auth Plane"]
+        AuthTab["Top-Level Browser Tab (Google / GitHub)"]
     end
 
-    Client <-->|Static Assets (HTML/JS/CSS)| GHPages
-    LifeCycle <-->|Direct WebRTC P2P / SFU Media Stream| Fairkom
-    LifeCycle -.->|Embedded Media Stream| OfficialJitsi
-    UI ==>|Bypasses Iframe Sandbox Block| AuthTab
-    AuthTab ==>|Authenticates & Creates Room| OfficialJitsi
+    UI -->|"1. Static Assets"| GHPages
+    LifeCycle -->|"2. Peer WebRTC Stream"| Fairkom
+    LifeCycle -.->|"3. Embedded Media Stream"| OfficialJitsi
+    UI -->|"4. Out-of-Band Auth Handoff"| AuthTab
+    AuthTab -->|"5. Authenticates & Creates Room"| OfficialJitsi
 ```
 
 ### 1. Serverless Jamstack WebRTC Orchestration
