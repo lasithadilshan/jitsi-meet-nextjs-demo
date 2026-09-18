@@ -24,6 +24,22 @@ A modern, production-quality video conferencing web application integrating **Ji
 
 ---
 
+## 🎯 Project Objectives
+
+The overarching goal of this project is to develop, validate, and document a production-ready, zero-backend WebRTC teleconferencing architecture deployed completely free on static edge infrastructure.
+
+### Primary Objective
+To demonstrate that fully functional, high-performance, multi-participant video conferencing can be delivered entirely through a static Jamstack frontend (Next.js 16 static export on GitHub Pages) without operating dedicated signaling servers, session databases, or proprietary backend APIs.
+
+### Specific Objectives
+1. **Serverless Jamstack Integration**: Architect a client-side WebRTC integration using Next.js 16 (`output: 'export'`) with Turbopack that dynamically initializes arbitrary meeting rooms without server-side routing or cloud functions.
+2. **Frictionless Zero-Login Access**: Provide a default, privacy-preserving calling experience using federated European NGO infrastructure (`fairmeeting.net`) requiring zero user accounts, credentials, or tracking.
+3. **Cross-Origin Sandbox Traversal**: Formulate an out-of-band authorization decoupling mechanism to solve modern browser third-party cookie blocking and iframe popup restrictions on token-gated servers (`meet.jit.si`).
+4. **Deterministic WebRTC Lifecycle Engine**: Build an atomic, memory-safe component lifecycle harness in React 19 and TypeScript to eliminate camera/microphone device locks, script injection races, and DOM zombie iframes during rapid routing.
+5. **Automated GitOps CI/CD**: Implement an automated GitHub Actions deployment pipeline that compiles and deploys static production bundles to GitHub Pages on every repository push.
+
+---
+
 ## 🔬 Research Novelty & Architectural Contributions
 
 This project investigates and resolves key architectural and security challenges at the intersection of **Static Jamstack Hosting**, **WebRTC Real-Time Communications**, and **Modern Browser Cross-Origin Sandboxing**.
@@ -76,6 +92,39 @@ flowchart TD
 ### 4. Zero-Trust, Ephemeral Privacy-Preserving Communication
 - **Problem**: Commercial meeting platforms track telemetry, user identifiers, room logs, and behavioral analytics.
 - **Novelty**: Delivers a **zero-data-footprint ephemeral communication model**. No user database, tracking cookies, server logs, or persistent session identifiers are created or retained. When combined with European GDPR-compliant open infrastructure nodes, it provides an auditable, high-privacy teleconferencing architecture.
+
+---
+
+## 🛠️ Methodology
+
+The development followed an empirical, phased systems engineering methodology:
+
+```mermaid
+flowchart LR
+    P1["Phase 1: Architecture<br/>& Static Jamstack Modeling"] --> P2["Phase 2: Protocol<br/>Integration & Auth Decoupling"]
+    P2 --> P3["Phase 3: Lifecycle<br/>Engine & State Machine"]
+    P3 --> P4["Phase 4: Empirical<br/>Testing, Validation & GitOps"]
+```
+
+### Phase 1: Architectural Formulation & Static Jamstack Modeling
+- **Control Plane Decoupling**: Separated the frontend presentation layer from WebRTC signaling and media bridge tiers.
+- **Client-Side Query Routing**: Substituted dynamic path routing (`/meeting/[room]`, which requires static pre-generation in Next.js static exports) with client-side query string extraction (`/meeting/?room=xyz`) wrapped within React Suspense boundaries.
+- **Path Normalization**: Configured dual `basePath` and `assetPrefix` variables in `next.config.ts` to seamlessly adapt to repository-scoped GitHub Pages URLs.
+
+### Phase 2: Protocol Integration & Cross-Origin Auth Decoupling
+- **IFrame API Encapsulation**: Integrated the official Jitsi Meet External API (`external_api.js`) into a reusable React component wrapper rather than relying on unmanaged `<iframe>` tags.
+- **Empirical Sandbox Diagnosis**: Investigated 8x8's August 2023 authentication policy changes, analyzing why browser third-party cookie restrictions cause iframe OAuth deadlocks ("Loading meeting...").
+- **Dual-Plane Routing Strategy**: Configured default routing to open-access NGO infrastructure (`fairmeeting.net`) while implementing an out-of-band top-level tab authorization workflow for `meet.jit.si`.
+
+### Phase 3: Lifecycle Management & State Machine Construction
+- **Idempotent Script Ingestion**: Engineered an asynchronous script loader that prevents duplicate `<script>` tag injections during client-side navigation.
+- **Non-Blocking State Transitioning**: Built a multi-stage state machine that transitions across `iframe.onload`, `videoConferenceJoined`, and deterministic fallback timeouts, eliminating permanent loading overlays.
+- **Key-Space Partitioning**: Bound component instances to `${selectedServer}-${roomName}` React keys, guaranteeing clean DOM teardown, hardware media track release, and garbage collection before reinitialization.
+
+### Phase 4: Empirical Testing, Validation & GitOps CI/CD
+- **Cross-Platform Verification**: Conducted multi-participant video, audio, and screen-sharing tests across Chrome, Safari, Firefox, and mobile browsers.
+- **Automated Pipeline Integration**: Configured a GitHub Actions workflow targeting GitHub Pages edge runners with automatic environment variable injection (`NEXT_PUBLIC_BASE_PATH`).
+- **Live Auditing**: Verified zero-error console states, subpath asset resolution, and responsive UI performance on production deployments.
 
 ---
 
